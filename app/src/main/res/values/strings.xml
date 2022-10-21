@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Como dibujar personas realistas</string>
+
+    <string name="steps_drawing_next">Siguiente imagen</string>
+    <string name="steps_drawing_Back">Imagen anterior</string>
+    <string name="steps_drawing_number_images"> %1$s/%2$s</string>
 </resources>
