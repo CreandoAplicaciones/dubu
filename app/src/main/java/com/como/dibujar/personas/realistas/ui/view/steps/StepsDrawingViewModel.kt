@@ -30,7 +30,7 @@ class StepsDrawingViewModel : BaseViewModel() {
     private var imagesList = listOf<String>()
     private var name = ""
     private var numberMaxImages = 1
-    private var currentNumberImage = 1
+    private var currentNumberImage = 0
 
 
     //region ViewModel Input
@@ -53,8 +53,8 @@ class StepsDrawingViewModel : BaseViewModel() {
                              name = document.data?.get(NAME) as String
                          }
                              numberMaxImages = imagesList.size
-                             doAction(Event.ShowImage(imagesList[0], name))
-                             doAction(Event.ShowNumberImages(numberMaxImages, currentNumberImage, R.string.steps_drawing_number_images))
+                             doAction(Event.ShowImage(imagesList[currentNumberImage], name))
+                             doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
 
                          if(currentNumberImage == numberMaxImages) {
                                 doAction(Event.ShowButtonNext(false))
@@ -69,19 +69,21 @@ class StepsDrawingViewModel : BaseViewModel() {
     fun didOnClickButtonBack() {
         doAction(Event.ShowButtonNext(true))
         currentNumberImage -= 1
-        if (currentNumberImage <= 1) {
+        if (currentNumberImage < 1) {
             doAction(Event.ShowButtonBack(false))
         }
-        doAction(Event.ShowNumberImages(numberMaxImages, currentNumberImage, R.string.steps_drawing_number_images))
+        doAction(Event.ShowImage(imagesList[currentNumberImage], name))
+        doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
     }
 
     fun didOnClickButtonNext() {
        doAction(Event.ShowButtonBack(true))
         currentNumberImage +=1
-        if(currentNumberImage == numberMaxImages) {
+        if((currentNumberImage + 1) == numberMaxImages) {
             doAction(Event.ShowButtonNext(false))
         }
-        doAction(Event.ShowNumberImages(numberMaxImages, currentNumberImage, R.string.steps_drawing_number_images))
+        doAction(Event.ShowImage(imagesList[currentNumberImage], name))
+        doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
     }
 
 

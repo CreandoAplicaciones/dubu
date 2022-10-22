@@ -93,7 +93,7 @@ class DrawableListViewModel : BaseViewModel() {
                                 var mainImage = ""
                                 var id = 1L
                                 var name = ""
-                                var group = ""
+                                var difficulty = 1L
                                 if (document.data?.get(MAIN_IMAGE) != null) {
                                     mainImage = document.data?.get(MAIN_IMAGE) as String
                                 }
@@ -103,11 +103,11 @@ class DrawableListViewModel : BaseViewModel() {
                                 if (document.data?.get(NAME) != null) {
                                     name = document.data?.get(NAME) as String
                                 }
-                                if (document.data?.get(GROUP) != null) {
-                                    group = document.data?.get(GROUP) as String
+                                if (document.data?.get(DIFFICULTY) != null) {
+                                    difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
-                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, group))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, group))
+                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
                             }
                         }
                 }
@@ -142,7 +142,7 @@ class DrawableListViewModel : BaseViewModel() {
                                 var mainImage = ""
                                 var id = 1L
                                 var name = ""
-                                var group = ""
+                                var difficulty = 1L
                                 if (document.data?.get(MAIN_IMAGE) != null) {
                                     mainImage = document.data?.get(MAIN_IMAGE) as String
                                 }
@@ -152,11 +152,11 @@ class DrawableListViewModel : BaseViewModel() {
                                 if (document.data?.get(NAME) != null) {
                                     name = document.data?.get(NAME) as String
                                 }
-                                if (document.data?.get(GROUP) != null) {
-                                    group = document.data?.get(GROUP) as String
+                                if (document.data?.get(DIFFICULTY) != null) {
+                                    difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
-                                mainImagesBody.add(MainImage(id.toInt(), mainImage, name, group))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, group))
+                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
                             }
                         }
                 }
@@ -191,7 +191,8 @@ class DrawableListViewModel : BaseViewModel() {
                                 var mainImage = ""
                                 var id = 1L
                                 var name = ""
-                                var group = ""
+                                var difficulty = 1L
+
                                 if (document.data?.get(MAIN_IMAGE) != null) {
                                     mainImage = document.data?.get(MAIN_IMAGE) as String
                                 }
@@ -201,11 +202,11 @@ class DrawableListViewModel : BaseViewModel() {
                                 if (document.data?.get(NAME) != null) {
                                     name = document.data?.get(NAME) as String
                                 }
-                                if (document.data?.get(GROUP) != null) {
-                                    group = document.data?.get(GROUP) as String
+                                if (document.data?.get(DIFFICULTY) != null) {
+                                    difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
-                                mainImagesHand.add(MainImage(id.toInt(), mainImage, name, group))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, group))
+                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
                             }
                         }
                 }
@@ -217,9 +218,6 @@ class DrawableListViewModel : BaseViewModel() {
             }
         }
     }
-
-
-
 
     fun didClickAllButton() {
         doAction(Event.SelectedAll(R.drawable.selected, R.color.white))

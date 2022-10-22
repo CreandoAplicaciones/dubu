@@ -4,4 +4,6 @@
     <string name="steps_drawing_next">Siguiente</string>
     <string name="steps_drawing_Back">Anterior</string>
     <string name="steps_drawing_number_images"> %1$s/%2$s</string>
+
+    <string name="drawing_list_difficulty">Dificultad:</string>
 </resources>

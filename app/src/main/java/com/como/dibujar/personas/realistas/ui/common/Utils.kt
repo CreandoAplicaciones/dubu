@@ -14,7 +14,6 @@ class Utils {
             Glide
                 .with(context)
                 .load(image)
-                .centerCrop()
                 .into(imageView)
         }
 

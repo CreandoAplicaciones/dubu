@@ -2,8 +2,10 @@ package com.como.dibujar.personas.realistas.ui.view.drawables
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.como.dibujar.personas.realistas.R
 import com.como.dibujar.personas.realistas.databinding.ItemImageBinding
 import com.como.dibujar.personas.realistas.model.MainImage
 
@@ -30,7 +32,39 @@ class DrawableAdapter(private var images: List<MainImage>,
         fun bind(image: MainImage, listener: (Int) -> Unit) = with(binding) {
 
             binding.nameImage.text = image.name
-            binding.groupName.text = image.group
+            when(image.difficulty) {
+                1-> { binding.imgPencil1.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil2.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil3.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil4.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil5.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                }
+                2-> { binding.imgPencil1.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil2.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil3.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil4.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil5.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                }
+                3-> { binding.imgPencil1.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil2.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil3.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil4.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                    binding.imgPencil5.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                }
+                4-> { binding.imgPencil1.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil2.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil3.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil4.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil5.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil_empty))
+                }
+                5-> { binding.imgPencil1.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil2.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil3.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil4.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                    binding.imgPencil5.setImageDrawable(ContextCompat.getDrawable(binding.imgPencil1.context, R.drawable.pencil))
+                }
+            }
+
             Glide
                 .with(itemView.context)
                 .load(image.image)
