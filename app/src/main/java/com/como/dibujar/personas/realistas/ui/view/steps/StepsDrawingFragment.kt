@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -32,6 +33,7 @@ class StepsDrawingFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         super.init(viewModel)
+        activity?.let { activity ->  activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)}
         viewModel.initFlow(args.idImage)
         viewModel.eventsFlow.observe(viewLifecycleOwner, ::updateUi)
     }
@@ -42,7 +44,10 @@ class StepsDrawingFragment : BaseFragment() {
                 binding.buttonBack.setOnClickListener { viewModel.didOnClickButtonBack() }
                 binding.buttonNext.setOnClickListener { viewModel.didOnClickButtonNext() }
             }
-            is ShowImage -> Utils.image(requireContext(), model.image, binding.imageView)
+            is ShowImage -> {
+                Utils.image(requireContext(), model.image, binding.imageView)
+                binding.txtTitle.text = model.name
+            }
             is ShowLoad -> binding.progressBar2.isVisible = model.isVisible
             is ShowNumberImages -> binding.txtNumberImages.text = getString(model.restId, model.currentNumber, model.numberImages)
             is ShowButtonBack -> binding.buttonBack.isVisible = model.isVisible

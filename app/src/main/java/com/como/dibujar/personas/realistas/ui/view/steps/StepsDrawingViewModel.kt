@@ -6,6 +6,7 @@ import com.como.dibujar.personas.realistas.ui.base.BaseViewModel
 import com.como.dibujar.personas.realistas.ui.common.DRAWING
 import com.como.dibujar.personas.realistas.ui.common.FACE
 import com.como.dibujar.personas.realistas.ui.common.IMAGES
+import com.como.dibujar.personas.realistas.ui.common.NAME
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.Channel
@@ -16,7 +17,7 @@ class StepsDrawingViewModel : BaseViewModel() {
 
     sealed class Event {
         object SetUp: Event()
-        data class ShowImage(val image: String): Event()
+        data class ShowImage(val image: String, val name: String): Event()
         data class ShowNumberImages(val numberImages: Int, val currentNumber: Int, val restId: Int): Event()
         data class ShowLoad(val isVisible: Boolean): Event()
         data class ShowButtonBack(val isVisible: Boolean): Event()
@@ -27,7 +28,8 @@ class StepsDrawingViewModel : BaseViewModel() {
     val eventsFlow = eventChannel.receiveAsFlow()
     private var db = Firebase.firestore
     private var imagesList = listOf<String>()
-    private var numberMaxImages = 0
+    private var name = ""
+    private var numberMaxImages = 1
     private var currentNumberImage = 1
 
 
@@ -46,12 +48,19 @@ class StepsDrawingViewModel : BaseViewModel() {
                      document?.let {
                          if (document.data?.get(IMAGES) != null ) {
                              imagesList = document.data?.get(IMAGES) as List<String>
+                         }
+                         if (document.data?.get(NAME) != null) {
+                             name = document.data?.get(NAME) as String
+                         }
                              numberMaxImages = imagesList.size
-                             doAction(Event.ShowImage(imagesList[0]))
+                             doAction(Event.ShowImage(imagesList[0], name))
                              doAction(Event.ShowNumberImages(numberMaxImages, currentNumberImage, R.string.steps_drawing_number_images))
+
+                         if(currentNumberImage == numberMaxImages) {
+                                doAction(Event.ShowButtonNext(false))
+                            }
                          }
                      }
-                 }
              doAction(Event.ShowLoad(false))
          }
 

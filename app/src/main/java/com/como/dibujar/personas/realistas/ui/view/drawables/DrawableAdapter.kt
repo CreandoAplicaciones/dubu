@@ -12,12 +12,15 @@ class DrawableAdapter(private var images: List<MainImage>,
                       private val listener: (Int) -> Unit
                            ): RecyclerView.Adapter<DrawableAdapter.ImagesHolder>() {
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ImagesHolder(ItemImageBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ImagesHolder, position: Int) {
         val item = images[position]
+        holder.setIsRecyclable(true)
         holder.bind(item, listener)
+
     }
 
     override fun getItemCount(): Int = images.size
@@ -26,12 +29,13 @@ class DrawableAdapter(private var images: List<MainImage>,
 
         fun bind(image: MainImage, listener: (Int) -> Unit) = with(binding) {
 
+            binding.nameImage.text = image.name
+            binding.groupName.text = image.group
             Glide
                 .with(itemView.context)
                 .load(image.image)
                 .centerCrop()
                 .into(imgRv)
-
             itemView.setOnClickListener { listener(image.id) }
         }
     }

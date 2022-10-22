@@ -7,23 +7,28 @@
     android:background="@color/white">
 
     <TextView
-        android:id="@+id/txtNumberImages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/txtTitle"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
         android:paddingVertical="5dp"
-        android:textSize="20dp"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:ellipsize="end"
+        android:textColor="@color/black"
+        android:maxLines="2"
+        android:background="@drawable/text_background"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="2/7" />
+        tools:text="Perro Bonito" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         tools:srcCompat="@tools:sample/backgrounds/scenic"
-        app:layout_constraintTop_toBottomOf="@id/txtNumberImages"
+        app:layout_constraintTop_toBottomOf="@id/txtTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/constraintButtom"/>
@@ -43,17 +48,44 @@
             android:layout_height="wrap_content"
             android:text="@string/steps_drawing_Back"
             android:visibility="invisible"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/black"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAllCaps="false"
+            android:drawableLeft="@drawable/arrow_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonNext"/>
+            app:layout_constraintEnd_toStartOf="@id/txtNumberImages"/>
+
+
+
+        <TextView
+            android:id="@+id/txtNumberImages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="5dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="2/7" />
 
         <Button
             android:id="@+id/buttonNext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/steps_drawing_next"
-            app:layout_constraintStart_toEndOf="@id/buttonBack"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/black"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAllCaps="false"
+            android:drawableRight="@drawable/arrow_next"
+            app:layout_constraintStart_toEndOf="@id/txtNumberImages"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
