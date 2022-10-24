@@ -1,6 +1,8 @@
 package com.como.dibujar.personas.realistas.ui.view.drawables
 
+import android.content.ContentValues
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +17,17 @@ import com.como.dibujar.personas.realistas.ui.common.FACE
 import com.como.dibujar.personas.realistas.ui.common.HAND
 import com.como.dibujar.personas.realistas.ui.common.extension.observe
 import com.como.dibujar.personas.realistas.ui.view.drawables.DrawableListViewModel.Event.*
+import com.google.android.gms.ads.*
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 
 class DrawableListFragment : BaseFragment() {
 
     private val viewModel: DrawableListViewModel by viewModels()
     private lateinit var binding: FragmentDrawableListBinding
+    private val adRequest = AdRequest.Builder().build()
+    private var mInterstitialAd: InterstitialAd? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentDrawableListBinding.inflate(inflater)
@@ -30,13 +37,13 @@ class DrawableListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         super.init(viewModel)
-        viewModel.initFlow()
+        viewModel.initFlow(requireContext())
         viewModel.eventsFlow.observe(viewLifecycleOwner, ::updateUi)
     }
 
     private fun updateUi(model: DrawableListViewModel.Event) {
         when (model) {
-            SetUp -> { binding.iVAll.setOnClickListener { viewModel.didClickAllButton() }
+            is SetUp -> { binding.iVAll.setOnClickListener { viewModel.didClickAllButton() }
                 binding.iVBody.setOnClickListener { viewModel.didClickBodyButton() }
                 binding.iVFace.setOnClickListener { viewModel.didClickFaceButton() }
                 binding.iVHand.setOnClickListener { viewModel.didClickHandButton() }
@@ -78,6 +85,52 @@ class DrawableListFragment : BaseFragment() {
                 binding.iVAll.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
                 binding.iVFace.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
                 binding.iVHand.background = resources.getDrawable(model.background)
+            }
+            is InitialInterstitial -> {
+                // add default ca-app-pub-3940256099942544/1033173712
+                MobileAds.initialize(requireContext()) {}
+                InterstitialAd.load(requireContext(),"ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        mInterstitialAd = null
+                    }
+
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        mInterstitialAd = interstitialAd
+                    }
+                })
+                mInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
+                    override fun onAdClicked() {
+                        // Called when a click is recorded for an ad.
+                        Log.d(ContentValues.TAG, "Ad was clicked.")
+                    }
+
+                    override fun onAdDismissedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        Log.d(ContentValues.TAG, "Ad dismissed fullscreen content.")
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(p0: AdError) {
+                        // Called when ad fails to show.
+                        Log.e(ContentValues.TAG, "Ad failed to show fullscreen content.")
+                        mInterstitialAd = null
+                    }
+
+                    override fun onAdImpression() {
+                        // Called when an impression is recorded for an ad.
+                        Log.d(ContentValues.TAG, "Ad recorded an impression.")
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        // Called when ad is shown.
+                        Log.d(ContentValues.TAG, "Ad showed fullscreen content.")
+                    }
+                }
+            }
+            is ShowInterstitial -> {
+                if (mInterstitialAd != null && model.isVisible) {
+                    mInterstitialAd?.show(requireActivity())
+                    viewModel.showedInterstitial()
+                }
             }
         }
     }

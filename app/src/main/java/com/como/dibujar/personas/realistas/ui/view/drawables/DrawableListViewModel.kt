@@ -1,10 +1,13 @@
 package com.como.dibujar.personas.realistas.ui.view.drawables
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.como.dibujar.personas.realistas.R
 import com.como.dibujar.personas.realistas.model.MainImage
 import com.como.dibujar.personas.realistas.ui.base.BaseViewModel
 import com.como.dibujar.personas.realistas.ui.common.*
+import com.como.dibujar.personas.realistas.ui.common.save.Prefs
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.Channel
@@ -15,6 +18,7 @@ class DrawableListViewModel : BaseViewModel() {
 
     sealed class Event {
         object SetUp: Event()
+        object InitialInterstitial: Event()
         data class GoToStepsDrawing(val id: Int): Event()
         data class ShowLoad(val isVisibility: Boolean): Event()
         data class ShowListFace(val imagesData: List<MainImage>): Event()
@@ -25,6 +29,7 @@ class DrawableListViewModel : BaseViewModel() {
         data class SelectedAll(val background: Int, val white: Int): Event()
         data class SelectedHand(val background: Int, val white: Int): Event()
         data class SelectedFace(val background: Int, val white: Int): Event()
+        data class ShowInterstitial(val isVisible: Boolean): Event()
     }
 
     private val eventChannel = Channel<Event>(Channel.BUFFERED)
@@ -38,37 +43,19 @@ class DrawableListViewModel : BaseViewModel() {
     private var mainImagesHand = arrayListOf<MainImage>()
     private var mainImagesBody = arrayListOf<MainImage>()
     private var selected = ALL
+    private var numberClick = 10L
+    private var interstitial = false
+    @SuppressLint("StaticFieldLeak")
+    private lateinit var context: Context
 
     //region ViewModel Input
-    fun initFlow() {
+    fun initFlow(cont: Context) {
+        context = cont
         doAction(Event.SetUp)
-        if (mainImagesFace.isEmpty()) {
-            getFaceMainImage()
-            getBodyImage()
-            getHandImage()
-        } else {
-            when(selected) {
-                ALL -> {
-                    doAction(Event.ShowListAll(mainImagesAll))
-                    doAction(Event.SelectedAll(R.drawable.selected, R.color.white))
-                }
-                BODY -> {
-                    doAction(Event.ShowListBody(mainImagesBody))
-                    doAction(Event.SelectedBody(R.drawable.selected, R.color.white))
-
-                }
-                HAND -> {
-                    doAction(Event.ShowListHand(mainImagesHand))
-                    doAction(Event.SelectedHand(R.drawable.selected, R.color.white))
-
-                }
-                FACE -> {
-                    doAction(Event.ShowListFace(mainImagesFace))
-                    doAction(Event.SelectedFace(R.drawable.selected, R.color.white))
-
-                }
-            }
-        }
+        doAction(Event.InitialInterstitial)
+        initSelected()
+        numberClick = Prefs(context).getClick()
+        getAdmobInterstitial()
     }
 
     private fun getFaceMainImage() {
@@ -219,29 +206,106 @@ class DrawableListViewModel : BaseViewModel() {
         }
     }
 
+    private fun getAdmobInterstitial() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(INTERSTICIAL)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(SHOW_INTERSTICIAL) != null){
+                            interstitial = document.data?.get(SHOW_INTERSTICIAL) as Boolean
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun getNumberInterstitial() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(INTERSTICIAL)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(NUMBER_INTERSTITIAL) != null){
+                            numberClick = document.data?.get(NUMBER_INTERSTITIAL) as Long
+                            Prefs(context).saveClick(numberClick)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun showedInterstitial() {
+        doAction(Event.InitialInterstitial)
+    }
+
     fun didClickAllButton() {
         doAction(Event.SelectedAll(R.drawable.selected, R.color.white))
         doAction(Event.ShowListAll(mainImagesAll))
         selected = ALL
+        subtractNumber()
     }
     fun didClickBodyButton() {
         doAction(Event.SelectedBody(R.drawable.selected, R.color.white))
         doAction(Event.ShowListBody(mainImagesBody))
         selected = BODY
+        subtractNumber()
     }
     fun didClickFaceButton() {
         doAction(Event.SelectedFace(R.drawable.selected, R.color.white))
         doAction(Event.ShowListFace(mainImagesFace))
         selected = FACE
+        subtractNumber()
     }
     fun didClickHandButton() {
         doAction(Event.SelectedHand(R.drawable.selected, R.color.white))
         doAction(Event.ShowListHand(mainImagesHand))
         selected = HAND
+        subtractNumber()
     }
 
     fun didSelectedImage(id: Int){
         doAction(Event.GoToStepsDrawing(id))
+        subtractNumber()
+    }
+
+    private fun subtractNumber() {
+        if (numberClick <= 0) {
+            doAction(Event.ShowInterstitial(interstitial))
+            getNumberInterstitial()
+        } else {
+            numberClick -= 1
+            Prefs(context).saveClick(numberClick-1)
+        }
+    }
+
+    private fun initSelected() {
+        if (mainImagesFace.isEmpty()) {
+            getFaceMainImage()
+            getBodyImage()
+            getHandImage()
+        } else {
+            when(selected) {
+                ALL -> {
+                    doAction(Event.ShowListAll(mainImagesAll))
+                    doAction(Event.SelectedAll(R.drawable.selected, R.color.white))
+                }
+                BODY -> {
+                    doAction(Event.ShowListBody(mainImagesBody))
+                    doAction(Event.SelectedBody(R.drawable.selected, R.color.white))
+
+                }
+                HAND -> {
+                    doAction(Event.ShowListHand(mainImagesHand))
+                    doAction(Event.SelectedHand(R.drawable.selected, R.color.white))
+
+                }
+                FACE -> {
+                    doAction(Event.ShowListFace(mainImagesFace))
+                    doAction(Event.SelectedFace(R.drawable.selected, R.color.white))
+                }
+            }
+        }
 
     }
 

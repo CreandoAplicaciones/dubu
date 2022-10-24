@@ -5,6 +5,7 @@ import com.como.dibujar.personas.realistas.ui.base.BaseViewModel
 import com.como.dibujar.personas.realistas.ui.common.ADMOB
 import com.como.dibujar.personas.realistas.ui.common.BANNER
 import com.como.dibujar.personas.realistas.ui.common.SHOW_BANNER
+import com.como.dibujar.personas.realistas.ui.common.save.Prefs
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.Channel
@@ -22,6 +23,7 @@ class MainViewModel : BaseViewModel() {
     val eventsFlow = eventChannel.receiveAsFlow()
     private var db = Firebase.firestore
     private var banner = false
+
 
     //region ViewModel Input
     fun initFlow() {

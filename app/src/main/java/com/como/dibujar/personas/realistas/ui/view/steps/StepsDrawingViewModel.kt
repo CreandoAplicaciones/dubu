@@ -1,12 +1,13 @@
 package com.como.dibujar.personas.realistas.ui.view.steps
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.como.dibujar.personas.realistas.R
 import com.como.dibujar.personas.realistas.ui.base.BaseViewModel
-import com.como.dibujar.personas.realistas.ui.common.DRAWING
-import com.como.dibujar.personas.realistas.ui.common.FACE
-import com.como.dibujar.personas.realistas.ui.common.IMAGES
-import com.como.dibujar.personas.realistas.ui.common.NAME
+import com.como.dibujar.personas.realistas.ui.common.*
+import com.como.dibujar.personas.realistas.ui.common.save.Prefs
+import com.como.dibujar.personas.realistas.ui.view.drawables.DrawableListViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.Channel
@@ -17,11 +18,14 @@ class StepsDrawingViewModel : BaseViewModel() {
 
     sealed class Event {
         object SetUp: Event()
+        object InitialInterstitial: Event()
         data class ShowImage(val image: String, val name: String): Event()
         data class ShowNumberImages(val numberImages: Int, val currentNumber: Int, val restId: Int): Event()
         data class ShowLoad(val isVisible: Boolean): Event()
         data class ShowButtonBack(val isVisible: Boolean): Event()
         data class ShowButtonNext(val isVisible: Boolean): Event()
+        data class ShowInterstitial(val isVisible: Boolean): Event()
+        data class ShowDifficulty(val difficulty: Int): Event()
     }
 
     private val eventChannel = Channel<Event>(Channel.BUFFERED)
@@ -30,13 +34,23 @@ class StepsDrawingViewModel : BaseViewModel() {
     private var imagesList = listOf<String>()
     private var name = ""
     private var numberMaxImages = 1
+    private var difficulty = 1L
     private var currentNumberImage = 0
+    private var numberClick = 10L
+    private var interstitial = false
+    @SuppressLint("StaticFieldLeak")
+    private lateinit var context: Context
+
 
 
     //region ViewModel Input
-    fun initFlow(id: Int) {
+    fun initFlow(id: Int, cont: Context) {
+        context = cont
         doAction(Event.SetUp)
+        doAction(Event.InitialInterstitial)
         getFaceImage(id)
+        numberClick = Prefs(context).getClick()
+        getAdmobInterstitial()
     }
 
      private fun getFaceImage(id: Int) {
@@ -52,9 +66,13 @@ class StepsDrawingViewModel : BaseViewModel() {
                          if (document.data?.get(NAME) != null) {
                              name = document.data?.get(NAME) as String
                          }
-                             numberMaxImages = imagesList.size
-                             doAction(Event.ShowImage(imagesList[currentNumberImage], name))
-                             doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
+                         if (document.data?.get(DIFFICULTY) != null) {
+                         difficulty = document.data?.get(DIFFICULTY) as Long
+                         }
+                         numberMaxImages = imagesList.size
+                         doAction(Event.ShowImage(imagesList[currentNumberImage], name))
+                         doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
+                         doAction(Event.ShowDifficulty(difficulty.toInt()))
 
                          if(currentNumberImage == numberMaxImages) {
                                 doAction(Event.ShowButtonNext(false))
@@ -66,6 +84,39 @@ class StepsDrawingViewModel : BaseViewModel() {
 
      }
 
+    private fun getAdmobInterstitial() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(INTERSTICIAL)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(SHOW_INTERSTICIAL) != null){
+                            interstitial = document.data?.get(SHOW_INTERSTICIAL) as Boolean
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun getNumberInterstitial() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(INTERSTICIAL)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(NUMBER_INTERSTITIAL) != null){
+                            numberClick = document.data?.get(NUMBER_INTERSTITIAL) as Long
+                            Prefs(context).saveClick(numberClick)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun showedInterstitial() {
+        doAction(Event.InitialInterstitial)
+    }
+
     fun didOnClickButtonBack() {
         doAction(Event.ShowButtonNext(true))
         currentNumberImage -= 1
@@ -74,6 +125,7 @@ class StepsDrawingViewModel : BaseViewModel() {
         }
         doAction(Event.ShowImage(imagesList[currentNumberImage], name))
         doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
+        subtractNumber()
     }
 
     fun didOnClickButtonNext() {
@@ -84,6 +136,17 @@ class StepsDrawingViewModel : BaseViewModel() {
         }
         doAction(Event.ShowImage(imagesList[currentNumberImage], name))
         doAction(Event.ShowNumberImages(numberMaxImages, (currentNumberImage+1), R.string.steps_drawing_number_images))
+        subtractNumber()
+    }
+
+    private fun subtractNumber() {
+        if (numberClick <= 0) {
+            doAction(Event.ShowInterstitial(interstitial))
+            getNumberInterstitial()
+        } else {
+            numberClick -= 1
+            Prefs(context).saveClick(numberClick-1)
+        }
     }
 
 

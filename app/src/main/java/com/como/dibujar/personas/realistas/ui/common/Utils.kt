@@ -16,7 +16,6 @@ class Utils {
                 .load(image)
                 .into(imageView)
         }
-
     }
 }
 
