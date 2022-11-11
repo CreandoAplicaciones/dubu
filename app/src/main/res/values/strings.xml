@@ -6,4 +6,13 @@
     <string name="steps_drawing_number_images"> %1$s/%2$s</string>
 
     <string name="drawing_list_difficulty">Dificultad:</string>
+
+    <string name="dialog_rate_do_you_like_this_app">¿Te gusta la App?</string>
+    <string name="dialog_rate_right_now">¡¡Votanos!!</string>
+    <string name="dialog_rate_rate_this_app">Votar</string>
+    <string name="dialog_rate_cancel">Cancelar</string>
+    <string name="dialog_rate_thank_you">Gracias por votar</string>
+
+    <string name="main_share">Descarga esta app %1$s y aprende a dibujar</string>
+
 </resources>

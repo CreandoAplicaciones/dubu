@@ -3,6 +3,7 @@ package com.como.dibujar.personas.realistas.ui.view.steps
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,8 +18,10 @@ import com.como.dibujar.personas.realistas.R
 import com.como.dibujar.personas.realistas.databinding.FragmentStepsDrawingBinding
 import com.como.dibujar.personas.realistas.ui.base.BaseFragment
 import com.como.dibujar.personas.realistas.ui.common.DIFFICULTY
+import com.como.dibujar.personas.realistas.ui.common.GOOGLE_PLAY
 import com.como.dibujar.personas.realistas.ui.common.Utils
 import com.como.dibujar.personas.realistas.ui.common.extension.observe
+import com.como.dibujar.personas.realistas.ui.view.doalograte.DialogRateApp
 import com.como.dibujar.personas.realistas.ui.view.drawables.DrawableListViewModel
 import com.como.dibujar.personas.realistas.ui.view.main.MainActivity
 import com.como.dibujar.personas.realistas.ui.view.steps.StepsDrawingViewModel.Event.*
@@ -27,7 +30,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 
-class StepsDrawingFragment : BaseFragment() {
+class StepsDrawingFragment : BaseFragment() , DialogRateApp.OnClickListener {
 
     private val viewModel: StepsDrawingViewModel by viewModels()
     private lateinit var binding: FragmentStepsDrawingBinding
@@ -44,7 +47,7 @@ class StepsDrawingFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         super.init(viewModel)
         activity?.let { activity ->  activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)}
-        viewModel.initFlow(args.idImage, requireContext())
+        viewModel.initFlow(args.collection, args.idImage, requireContext())
         viewModel.eventsFlow.observe(viewLifecycleOwner, ::updateUi)
     }
 
@@ -64,8 +67,9 @@ class StepsDrawingFragment : BaseFragment() {
             is ShowButtonNext -> binding.buttonNext.isVisible = model.isVisible
             is InitialInterstitial -> {
                 // add default ca-app-pub-3940256099942544/1033173712
+                // add mio: ca-app-pub-4849545913451935~8657828105
                 MobileAds.initialize(requireContext()) {}
-                InterstitialAd.load(requireContext(),"ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                InterstitialAd.load(requireContext(),"ca-app-pub-4849545913451935~8657828105", adRequest, object : InterstitialAdLoadCallback() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         mInterstitialAd = null
                     }
@@ -143,6 +147,19 @@ class StepsDrawingFragment : BaseFragment() {
                 }
 
             }
+            is ShowDialogRate -> {
+                val rate = DialogRateApp(this )
+                rate.show(parentFragmentManager, null)
+            }
+        }
+    }
+    override fun goToGooglePlay(start: Int) {
+        if (start == 5 || start == 4) {
+            val uri = Uri.parse(GOOGLE_PLAY)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            startActivity(intent)
+        } else {
+            Utils.toast(requireContext(), R.string.dialog_rate_thank_you)
         }
     }
 }

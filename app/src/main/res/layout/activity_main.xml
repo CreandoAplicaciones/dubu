@@ -7,7 +7,7 @@
     android:background="@color/white"
     tools:context=".ui.view.main.MainActivity">
     <!-- Sample AdMob app ID: ca-app-pub-3940256099942544/6300978111 -->
-    <!-- real:  -->
+    <!-- real: ca-app-pub-4849545913451935/4718583095 -->
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adViewSup"
@@ -17,7 +17,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="visible"
         app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:adUnitId="ca-app-pub-4849545913451935/4718583095"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +36,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/adViewSup"  />
 
-    <!-- real:  -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:backgroundTint="@color/blue_light"
+        android:src="@drawable/ic_baseline_share_24"
+        app:layout_constraintBottom_toBottomOf="@id/nav_host_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="65dp"
+        android:layout_marginEnd="20dp"/>
+
+    <!-- real:  ca-app-pub-4849545913451935/8274684721 -->
     <com.google.android.gms.ads.AdView
         android:id="@+id/adViewInf"
         android:layout_width="0dp"
@@ -45,7 +57,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="visible"
         app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:adUnitId="ca-app-pub-4849545913451935/8274684721"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

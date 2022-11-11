@@ -20,8 +20,13 @@
         android:label="StepsDrawingFragment"
         tools:layout="@layout/fragment_steps_drawing">
         <argument
+            android:name="collection"
+            app:argType="string"
+            />
+        <argument
             android:name="idImage"
             app:argType="integer"
             />
+
     </fragment>
 </navigation>

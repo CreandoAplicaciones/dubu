@@ -10,19 +10,19 @@ class Prefs (val context: Context) {
 
     val storage=context.getSharedPreferences(SHARED_NAME,0)
 
-    fun saveDay(dayNumber: Int){
-        storage.edit().putInt(SHARED_DAY,dayNumber).apply()
-    }
-
-    fun getDay():Int{
-        return  storage.getInt(SHARED_DAY,1)
-    }
-
     fun saveClick(numberClick: Long){
         storage.edit().putLong(SHARED_CLICK, numberClick).apply()
     }
 
     fun getClick():Long{
         return  storage.getLong(SHARED_CLICK, 10)
+    }
+
+    fun saveClickRate(numberClick: Long){
+        storage.edit().putLong(SHARED_CLICK, numberClick).apply()
+    }
+
+    fun getClickRate():Long{
+        return  storage.getLong(SHARED_CLICK, 27)
     }
 }

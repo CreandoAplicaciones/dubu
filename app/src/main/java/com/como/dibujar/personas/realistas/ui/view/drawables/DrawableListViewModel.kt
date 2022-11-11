@@ -19,17 +19,16 @@ class DrawableListViewModel : BaseViewModel() {
     sealed class Event {
         object SetUp: Event()
         object InitialInterstitial: Event()
-        data class GoToStepsDrawing(val id: Int): Event()
+        data class GoToStepsDrawing(val collection: String, val id: Int): Event()
         data class ShowLoad(val isVisibility: Boolean): Event()
         data class ShowListFace(val imagesData: List<MainImage>): Event()
-        data class ShowListAll(val imagesData: List<MainImage>): Event()
         data class ShowListHand(val imagesData: List<MainImage>): Event()
         data class ShowListBody(val imagesData: List<MainImage>): Event()
         data class SelectedBody(val background: Int, val white: Int): Event()
-        data class SelectedAll(val background: Int, val white: Int): Event()
         data class SelectedHand(val background: Int, val white: Int): Event()
         data class SelectedFace(val background: Int, val white: Int): Event()
         data class ShowInterstitial(val isVisible: Boolean): Event()
+        data class ShowDialogRate(val isVisible: Boolean): Event()
     }
 
     private val eventChannel = Channel<Event>(Channel.BUFFERED)
@@ -39,12 +38,13 @@ class DrawableListViewModel : BaseViewModel() {
     private var countBody = 0
     private var countHand = 0
     private var mainImagesFace = arrayListOf<MainImage>()
-    private var mainImagesAll = arrayListOf<MainImage>()
     private var mainImagesHand = arrayListOf<MainImage>()
     private var mainImagesBody = arrayListOf<MainImage>()
-    private var selected = ALL
+    private var selected = FACE
     private var numberClick = 10L
+    private var numberRate = 27L
     private var interstitial = false
+    private var dialogRate = false
     @SuppressLint("StaticFieldLeak")
     private lateinit var context: Context
 
@@ -55,7 +55,9 @@ class DrawableListViewModel : BaseViewModel() {
         doAction(Event.InitialInterstitial)
         initSelected()
         numberClick = Prefs(context).getClick()
+        numberRate = Prefs(context).getClickRate()
         getAdmobInterstitial()
+        getRateIsTrue()
     }
 
     private fun getFaceMainImage() {
@@ -94,14 +96,13 @@ class DrawableListViewModel : BaseViewModel() {
                                     difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
                                 mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                when (selected) {
+                                    FACE -> doAction(Event.ShowListFace(mainImagesFace))
+                                }
                             }
                         }
                 }
-                when (selected) {
-                    ALL -> doAction(Event.ShowListAll(mainImagesAll))
-                    FACE -> doAction(Event.ShowListFace(mainImagesFace))
-                }
+
                 doAction(Event.ShowLoad(false))
             }
         }
@@ -142,15 +143,14 @@ class DrawableListViewModel : BaseViewModel() {
                                 if (document.data?.get(DIFFICULTY) != null) {
                                     difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
-                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                mainImagesBody.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                 when (selected) {
+                                     BODY -> doAction(Event.ShowListBody(mainImagesBody))
+                                }
                             }
                         }
                 }
-                when (selected) {
-                    ALL -> doAction(Event.ShowListAll(mainImagesAll))
-                    BODY -> doAction(Event.ShowListBody(mainImagesBody))
-                }
+
                 doAction(Event.ShowLoad(false))
             }
         }
@@ -192,15 +192,14 @@ class DrawableListViewModel : BaseViewModel() {
                                 if (document.data?.get(DIFFICULTY) != null) {
                                     difficulty = document.data?.get(DIFFICULTY) as Long
                                 }
-                                mainImagesFace.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
-                                mainImagesAll.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                mainImagesHand.add(MainImage(id.toInt(), mainImage, name, difficulty.toInt()))
+                                 when (selected) {
+                                     HAND -> doAction(Event.ShowListHand(mainImagesHand))
+                                }
                             }
                         }
                 }
-                when (selected) {
-                    ALL -> doAction(Event.ShowListAll(mainImagesAll))
-                    HAND -> doAction(Event.ShowListHand(mainImagesHand))
-                }
+
                 doAction(Event.ShowLoad(false))
             }
         }
@@ -235,15 +234,37 @@ class DrawableListViewModel : BaseViewModel() {
         }
     }
 
-    fun showedInterstitial() {
-        doAction(Event.InitialInterstitial)
+    private fun getRateIsTrue() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(RATE)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(SHOW_DIALOG_RATE) != null){
+                            dialogRate = document.data?.get(SHOW_DIALOG_RATE) as Boolean
+                        }
+                    }
+                }
+        }
     }
 
-    fun didClickAllButton() {
-        doAction(Event.SelectedAll(R.drawable.selected, R.color.white))
-        doAction(Event.ShowListAll(mainImagesAll))
-        selected = ALL
-        subtractNumber()
+    private fun getNumberRater() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(RATE)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(NUMBER_DIALOG) != null){
+                            numberRate = document.data?.get(NUMBER_DIALOG) as Long
+                            Prefs(context).saveClickRate(numberRate)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun showedInterstitial() {
+        doAction(Event.InitialInterstitial)
     }
     fun didClickBodyButton() {
         doAction(Event.SelectedBody(R.drawable.selected, R.color.white))
@@ -265,7 +286,7 @@ class DrawableListViewModel : BaseViewModel() {
     }
 
     fun didSelectedImage(id: Int){
-        doAction(Event.GoToStepsDrawing(id))
+        doAction(Event.GoToStepsDrawing(selected, id))
         subtractNumber()
     }
 
@@ -277,6 +298,14 @@ class DrawableListViewModel : BaseViewModel() {
             numberClick -= 1
             Prefs(context).saveClick(numberClick-1)
         }
+        if (numberRate <= 0) {
+            doAction(Event.ShowDialogRate(dialogRate))
+            getNumberRater()
+        } else {
+            numberRate -= 1
+            Prefs(context).saveClickRate(numberRate)
+        }
+
     }
 
     private fun initSelected() {
@@ -286,10 +315,6 @@ class DrawableListViewModel : BaseViewModel() {
             getHandImage()
         } else {
             when(selected) {
-                ALL -> {
-                    doAction(Event.ShowListAll(mainImagesAll))
-                    doAction(Event.SelectedAll(R.drawable.selected, R.color.white))
-                }
                 BODY -> {
                     doAction(Event.ShowListBody(mainImagesBody))
                     doAction(Event.SelectedBody(R.drawable.selected, R.color.white))

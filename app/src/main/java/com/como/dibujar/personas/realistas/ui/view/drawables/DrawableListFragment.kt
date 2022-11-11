@@ -1,6 +1,8 @@
 package com.como.dibujar.personas.realistas.ui.view.drawables
 
 import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,18 +13,18 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.como.dibujar.personas.realistas.databinding.FragmentDrawableListBinding
 import com.como.dibujar.personas.realistas.ui.base.BaseFragment
-import com.como.dibujar.personas.realistas.ui.common.ALL
-import com.como.dibujar.personas.realistas.ui.common.BODY
-import com.como.dibujar.personas.realistas.ui.common.FACE
-import com.como.dibujar.personas.realistas.ui.common.HAND
+import com.como.dibujar.personas.realistas.ui.common.GOOGLE_PLAY
+import com.como.dibujar.personas.realistas.ui.common.Utils
 import com.como.dibujar.personas.realistas.ui.common.extension.observe
+import com.como.dibujar.personas.realistas.ui.view.doalograte.DialogRateApp
 import com.como.dibujar.personas.realistas.ui.view.drawables.DrawableListViewModel.Event.*
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.como.dibujar.personas.realistas.R
 
 
-class DrawableListFragment : BaseFragment() {
+class DrawableListFragment : BaseFragment(), DialogRateApp.OnClickListener {
 
     private val viewModel: DrawableListViewModel by viewModels()
     private lateinit var binding: FragmentDrawableListBinding
@@ -43,7 +45,7 @@ class DrawableListFragment : BaseFragment() {
 
     private fun updateUi(model: DrawableListViewModel.Event) {
         when (model) {
-            is SetUp -> { binding.iVAll.setOnClickListener { viewModel.didClickAllButton() }
+            is SetUp -> {
                 binding.iVBody.setOnClickListener { viewModel.didClickBodyButton() }
                 binding.iVFace.setOnClickListener { viewModel.didClickFaceButton() }
                 binding.iVHand.setOnClickListener { viewModel.didClickHandButton() }
@@ -52,44 +54,34 @@ class DrawableListFragment : BaseFragment() {
             is ShowListFace -> {
                 binding.rVImages.adapter = DrawableAdapter(model.imagesData, viewModel::didSelectedImage)
             }
-            is ShowListAll -> {
-                binding.rVImages.adapter = DrawableAdapter(model.imagesData, viewModel::didSelectedImage)
-            }
             is ShowListBody -> {
                 binding.rVImages.adapter = DrawableAdapter(model.imagesData, viewModel::didSelectedImage)
             }
             is ShowListHand -> {
                 binding.rVImages.adapter = DrawableAdapter(model.imagesData, viewModel::didSelectedImage)
             }
-            is GoToStepsDrawing -> findNavController().navigate(DrawableListFragmentDirections.actionDrawableListFragmentToStepsDrawingFragment(model.id))
-            is SelectedAll -> {
-                binding.iVBody.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVHand.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVFace.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVAll.background = resources.getDrawable(model.background)
-            }
+            is GoToStepsDrawing -> findNavController().navigate(DrawableListFragmentDirections.actionDrawableListFragmentToStepsDrawingFragment(model.collection, model.id))
             is SelectedBody -> {
-                binding.iVAll.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVHand.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVFace.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
+                binding.iVHand.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
+                binding.iVFace.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
                 binding.iVBody.background = resources.getDrawable(model.background)
             }
             is SelectedFace -> {
-                binding.iVBody.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVHand.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVAll.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
+
+                binding.iVBody.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
+                binding.iVHand.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
                 binding.iVFace.background = resources.getDrawable(model.background)
             }
             is SelectedHand -> {
-                binding.iVBody.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVAll.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
-                binding.iVFace.setBackgroundColor(binding.iVAll.context.resources.getColor(model.white))
+                binding.iVBody.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
+                binding.iVFace.setBackgroundColor(binding.iVHand.context.resources.getColor(model.white))
                 binding.iVHand.background = resources.getDrawable(model.background)
             }
             is InitialInterstitial -> {
                 // add default ca-app-pub-3940256099942544/1033173712
+                // add mio ca-app-pub-4849545913451935~8657828105
                 MobileAds.initialize(requireContext()) {}
-                InterstitialAd.load(requireContext(),"ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                InterstitialAd.load(requireContext(),"ca-app-pub-4849545913451935~8657828105", adRequest, object : InterstitialAdLoadCallback() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         mInterstitialAd = null
                     }
@@ -132,6 +124,22 @@ class DrawableListFragment : BaseFragment() {
                     viewModel.showedInterstitial()
                 }
             }
+            is ShowDialogRate -> {
+                if(model.isVisible) {
+                    val rate = DialogRateApp(this)
+                    rate.show(parentFragmentManager, null)
+                }
+            }
+        }
+    }
+
+    override fun goToGooglePlay(start: Int) {
+        if (start == 5 || start == 4) {
+            val uri = Uri.parse(GOOGLE_PLAY)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            startActivity(intent)
+        } else {
+            Utils.toast(requireContext(), R.string.dialog_rate_thank_you)
         }
     }
 }

@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import com.como.dibujar.personas.realistas.databinding.ActivityMainBinding
 import com.como.dibujar.personas.realistas.ui.base.BaseActivity
+import com.como.dibujar.personas.realistas.ui.common.GOOGLE_PLAY
+import com.como.dibujar.personas.realistas.ui.common.Utils
 import com.como.dibujar.personas.realistas.ui.common.extension.observe
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -44,11 +46,13 @@ class MainActivity : BaseActivity() {
                 MobileAds.initialize(this) {}
                 binding.adViewSup.loadAd(adRequest)
                 binding.adViewInf.loadAd(adRequest)
+                binding.buttonShare.setOnClickListener { viewModel.didOnClickButtonShare() }
             }
             is ShowBanner -> {
                 binding.adViewInf.isVisible = model.isVisible
                 binding.adViewSup.isVisible = model.isVisible
             }
+            is ShareApp -> Utils.shareApp(getString(model.ResInt, GOOGLE_PLAY), this)
         }
     }
 

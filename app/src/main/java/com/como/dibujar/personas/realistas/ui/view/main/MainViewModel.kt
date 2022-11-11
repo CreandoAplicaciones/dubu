@@ -1,6 +1,7 @@
 package com.como.dibujar.personas.realistas.ui.view.main
 
 import androidx.lifecycle.viewModelScope
+import com.como.dibujar.personas.realistas.R
 import com.como.dibujar.personas.realistas.ui.base.BaseViewModel
 import com.como.dibujar.personas.realistas.ui.common.ADMOB
 import com.como.dibujar.personas.realistas.ui.common.BANNER
@@ -16,6 +17,7 @@ class MainViewModel : BaseViewModel() {
 
     sealed class Event {
         object SetUp : Event()
+        data class ShareApp(val ResInt: Int) : Event()
         data class ShowBanner(val isVisible: Boolean): Event()
     }
 
@@ -44,6 +46,10 @@ class MainViewModel : BaseViewModel() {
                     }
                 }
         }
+    }
+
+    fun didOnClickButtonShare() {
+        doAction(Event.ShareApp(R.string.main_share))
     }
     //endregion
 

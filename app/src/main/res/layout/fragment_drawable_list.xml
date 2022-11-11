@@ -43,26 +43,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintButton"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="65dp"
         android:paddingVertical="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-
-        <ImageView
-            android:id="@+id/iVAll"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            app:layout_constraintDimensionRatio="4:4"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iVHand"
-            app:layout_constraintStart_toStartOf="parent"
-            android:background="@drawable/selected"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/all" />
-
 
 
         <ImageView
@@ -72,7 +57,7 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/hand"
             app:layout_constraintDimensionRatio="4:4"
-            app:layout_constraintStart_toEndOf="@id/iVAll"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iVBody"/>
@@ -98,6 +83,7 @@
             app:layout_constraintDimensionRatio="4:4"
             app:layout_constraintStart_toEndOf="@id/iVBody"
             app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/selected"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 

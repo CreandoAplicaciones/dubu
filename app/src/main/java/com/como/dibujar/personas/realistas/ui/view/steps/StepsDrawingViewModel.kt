@@ -26,6 +26,7 @@ class StepsDrawingViewModel : BaseViewModel() {
         data class ShowButtonNext(val isVisible: Boolean): Event()
         data class ShowInterstitial(val isVisible: Boolean): Event()
         data class ShowDifficulty(val difficulty: Int): Event()
+        data class ShowDialogRate(val isVisible: Boolean): Event()
     }
 
     private val eventChannel = Channel<Event>(Channel.BUFFERED)
@@ -37,26 +38,30 @@ class StepsDrawingViewModel : BaseViewModel() {
     private var difficulty = 1L
     private var currentNumberImage = 0
     private var numberClick = 10L
+    private var numberRate = 27L
     private var interstitial = false
+    private var dialogRate = false
     @SuppressLint("StaticFieldLeak")
     private lateinit var context: Context
 
 
 
     //region ViewModel Input
-    fun initFlow(id: Int, cont: Context) {
+    fun initFlow(collection: String, id: Int, cont: Context) {
         context = cont
         doAction(Event.SetUp)
         doAction(Event.InitialInterstitial)
-        getFaceImage(id)
+        getFaceImage(collection, id)
         numberClick = Prefs(context).getClick()
+        numberRate = Prefs(context).getClickRate()
         getAdmobInterstitial()
+        getRateIsTrue()
     }
 
-     private fun getFaceImage(id: Int) {
+     private fun getFaceImage(collection: String,id: Int) {
          viewModelScope.launch {
              doAction(Event.ShowLoad(true))
-             db.collection(FACE).document(DRAWING + "$id")
+             db.collection(collection).document(DRAWING + "$id")
              .get()
                  .addOnSuccessListener { document ->
                      document?.let {
@@ -113,6 +118,35 @@ class StepsDrawingViewModel : BaseViewModel() {
         }
     }
 
+    private fun getRateIsTrue() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(RATE)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(SHOW_DIALOG_RATE) != null){
+                            dialogRate = document.data?.get(SHOW_DIALOG_RATE) as Boolean
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun getNumberRater() {
+        viewModelScope.launch {
+            val maximum = db.collection(ADMOB).document(RATE)
+            maximum.get()
+                .addOnSuccessListener { document ->
+                    document?.let {
+                        if(document.data?.get(NUMBER_DIALOG) != null){
+                            numberRate = document.data?.get(NUMBER_DIALOG) as Long
+                            Prefs(context).saveClickRate(numberRate)
+                        }
+                    }
+                }
+        }
+    }
+
     fun showedInterstitial() {
         doAction(Event.InitialInterstitial)
     }
@@ -146,6 +180,13 @@ class StepsDrawingViewModel : BaseViewModel() {
         } else {
             numberClick -= 1
             Prefs(context).saveClick(numberClick-1)
+        }
+        if (numberRate <= 0) {
+            doAction(Event.ShowDialogRate(dialogRate))
+            getNumberRater()
+        } else {
+            numberRate -= 1
+            Prefs(context).saveClickRate(numberRate)
         }
     }
 
